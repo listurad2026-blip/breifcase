@@ -2,43 +2,65 @@
 
 **Send a take-home assignment to every candidate at once — one personalised email each, with a searchable record of who got what.**
 
-Built for the bit of hiring that quietly eats an afternoon: you have a PDF brief, a
-list of forty candidates for the Flutter role, and a deadline. Briefcase takes the
-list, attaches the brief, personalises every email, sends them one at a time so
-nobody sees anyone else's address, and remembers all of it.
+---
 
-```
-┌─ Compose ──────────────────────┐   ┌─ Preview ──────────────┐
-│ Recipients   40 valid · 2 dupes│   │ To      arjun@gmail.com│
-│ Domain/Role  Flutter Developer │   │ Subject Flutter — due… │
-│ Deadline     Fri 22 Aug, 11:59 │   │                        │
-│ ✨ Draft it with AI            │   │ Hi Arjun,              │
-│ 📎 flutter-task.pdf            │   │ …                      │
-└────────────────────────────────┘   └────────────────────────┘
-```
+## The problem
+
+You're hiring for a Flutter role. You have a PDF brief, forty shortlisted
+candidates, and a deadline. Doing this by hand means forty copy-pasted emails,
+forty chances to attach the wrong file or address someone by the wrong name, and
+no reliable answer a week later when someone asks *"did we actually send it to
+Priya?"*
+
+Mailing everyone at once with a bulk BCC solves the tedium and creates a worse
+problem: every candidate can see who else you're considering.
+
+Briefcase does it properly — one personal email per candidate, sent individually,
+and it remembers all of it.
 
 ---
 
 ## What it does
 
-- **Paste any list.** Commas, spaces, new lines, `Name <email>`, or rows copied
-  straight out of Excel. Duplicates removed, names extracted, bad addresses
-  reported back rather than silently dropped.
-- **One email per person.** Nobody is CC'd or BCC'd together. Each candidate gets
-  their own message addressed to them.
-- **Personalisation.** `{{name}}`, `{{firstname}}`, `{{email}}`, `{{deadline}}`
-  and `{{role}}` are substituted per recipient.
-- **AI drafting.** Describe the assignment in a sentence and let OpenAI or Claude
-  write the subject and body. Optional — leave the key out and write it yourself.
-- **Attachments.** Drop in the PDF brief (up to 5 files, 25 MB each).
-- **Live progress.** Watch each address succeed or fail as it goes, with a stop
-  button and a per-recipient CSV.
-- **Searchable history.** Every email ever sent, filterable by candidate, hiring
-  domain, status and date — and it survives restarts.
+### Takes your list however you have it
 
-### Tracking by hiring domain
+Paste addresses separated by commas, spaces or new lines. Paste `Name <email>`
+pairs. Paste rows straight out of Excel or Google Sheets. Import a CSV.
 
-Tag each batch with the role it's for, and the History page breaks it down:
+Duplicates are removed, names are pulled out automatically, and anything it
+can't read is shown back to you rather than silently dropped — so a typo becomes
+something you fix, not something you discover a week later.
+
+### Writes the email with you
+
+Describe the assignment in a sentence and let AI draft the subject and body,
+then edit it however you like. Or skip that entirely and write it yourself.
+
+Each candidate's copy is personalised — their name in the greeting, the deadline,
+the role — so nobody receives an email addressed to "Dear Candidate".
+
+### Sends one email per person
+
+Never a shared BCC. Every candidate gets their own message with the brief
+attached, and no visibility of anyone else on the list.
+
+Sending is paced so mail providers don't throttle you, failures are retried
+automatically, and anything that still won't deliver is reported with the actual
+reason — a wrong address, a full mailbox — rather than a silent gap.
+
+### Shows you what's happening
+
+A live progress panel ticks through the list as it goes, marking each address
+delivered or failed. You can stop a run partway. When it's done you get a
+per-recipient report.
+
+### Remembers everything
+
+Every email ever sent is searchable — by candidate, by subject, by hiring domain,
+by status, by date. This is the part that matters a month later.
+
+**Tracking by hiring domain.** Tag each batch with the role it's for, and the
+history breaks down accordingly:
 
 | Domain | People | Sent | Failed |
 | --- | ---: | ---: | ---: |
@@ -46,118 +68,30 @@ Tag each batch with the role it's for, and the History page breaks it down:
 | Python Developer | 3 | 3 | 0 |
 | React Developer | 2 | 1 | 1 |
 
-Click any row to filter everything to it. A second table groups by **email
-provider** instead — if Gmail shows `4/6` while everything else is clean, that's
-a deliverability problem, not a candidate problem.
+Click any row to filter everything to it. So *"how many people did we send the
+Python assignment to, and did they all get it?"* is one click, not an archaeology
+expedition through your Sent folder.
+
+A second breakdown groups by email provider instead. If Gmail shows `4/6` while
+every other provider is clean, that's a deliverability problem on your side — not
+four candidates who ignored you.
 
 ---
 
-## Quick start
+## In short
 
-Requires **Node 20+**.
-
-```bash
-git clone https://github.com/kirtika01/Briefcase.git
-cd Briefcase
-npm install
-cp .env.example .env      # then fill it in — see below
-npm run check             # verifies your login without sending anything
-npm start                 # → http://localhost:3210
-```
-
-### Configure `.env`
-
-**Email (required).** For Gmail you need an
-[App Password](https://myaccount.google.com/apppasswords) — your normal password
-will be rejected, and the page only appears once 2-Step Verification is on.
-
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=you@gmail.com
-SMTP_PASS=abcdefghijklmnop        # 16-char App Password, no spaces
-MAIL_FROM_NAME=Your Name
-MAIL_FROM_EMAIL=you@gmail.com
-```
-
-Outlook, Zoho, SendGrid, Mailgun and college mail servers work the same way.
-
-```bash
-npm run set-password      # safer than editing by hand — hidden input, validates length
-```
-
-**AI drafting (optional).** Set *one*:
-
-```env
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4.1              # or gpt-4.1-mini for lower cost
-# — or —
-ANTHROPIC_API_KEY=sk-ant-...
-ANTHROPIC_MODEL=claude-opus-5
-AI_PROVIDER=auto                  # openai | anthropic | auto
-```
-
-Leave both blank and the AI panel greys out; everything else still works.
-
----
-
-## Commands
-
-| Command | What it does |
+| | |
 | --- | --- |
-| `npm start` | Run the dashboard |
-| `npm run dev` | Same, restarting on file changes |
-| `npm run check` | Verify email login + AI key **without sending anything** |
-| `npm run set-password` | Set the SMTP password safely (hidden input) |
+| **Paste any list** | Commas, spaces, `Name <email>`, spreadsheet rows, CSV |
+| **Personalised** | Name, deadline and role filled in per candidate |
+| **AI drafting** | Describe the assignment, get a subject and body |
+| **Attachments** | The PDF brief goes to everyone |
+| **Private** | One email per person, never a shared BCC |
+| **Live progress** | Watch it send; stop it mid-run if you need to |
+| **Searchable history** | Every email, filterable by candidate, domain and date |
+| **Exports** | Download any view as CSV |
 
 ---
-
-## How it works
-
-```
-public/          dashboard — plain HTML/CSS/JS, no build step
-server.js        routes, uploads, live progress stream
-src/config.js    reads .env
-src/recipients.js  turns pasted text or CSV into a clean recipient list
-src/mailer.js    SMTP transport, message building, readable error messages
-src/ai.js        draft generation (OpenAI or Claude)
-src/jobs.js      send queue, throttling, retries, progress
-src/history.js   durable JSONL history + search
-scripts/         check.js, set-password.js
-```
-
-Sending is deliberately throttled — 3 at a time with a 400 ms gap — so providers
-don't rate-limit you. Failures retry twice, then land in the CSV with the actual
-SMTP error. The login is verified once up front, so a bad password fails
-immediately instead of once per recipient.
-
-History is appended to `data/history.jsonl`, one JSON object per email. Plain
-text on purpose: you can `grep` it or open it in a spreadsheet.
-
----
-
-## Things worth knowing
-
-- **Provider limits apply.** Gmail personal accounts cap around 500
-  recipients/day, Workspace around 2,000. Beyond that use SendGrid, Mailgun or
-  SES — same SMTP settings, no code changes.
-- **Uploaded files are deleted** as soon as a run finishes.
-- **Restarting clears live job reports** (history survives) — download the CSV if
-  you want the per-run detail.
-- **Single instance only.** Job state lives in memory; running two copies would
-  split it.
-
-## Security
-
-- `.env`, `.env.backup`, `data/` and `uploads/` are git-ignored. **Never commit
-  them** — they hold your mail password and candidate addresses.
-- Built for `localhost`. Before exposing it anywhere, set `DASHBOARD_PASSWORD`
-  in `.env` and put it behind HTTPS — anyone who can open the page can send email
-  as you and read every address in your history.
-- **Not deployable to Vercel/Netlify as-is** — serverless functions time out
-  mid-send and have no persistent disk for history. Use a host that runs a real
-  Node process: Render, Railway or Fly.io.
 
 ## Licence
 
