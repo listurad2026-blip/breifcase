@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Briefcase</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>"
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">📨</span>
+        <div>
+          <h1>Briefcase</h1>
+          <p>Send the brief to every candidate — and keep track.</p>
+        </div>
+      </div>
+      <nav class="tabs">
+        <button class="tab is-active" data-view="compose" type="button">Compose</button>
+        <button class="tab" data-view="history" type="button">History</button>
+      </nav>
+      <div class="status-pills">
+        <span class="pill" id="pill-smtp">SMTP …</span>
+        <span class="pill" id="pill-ai">AI …</span>
+        <button class="ghost" id="btn-test-smtp" type="button">Test connection</button>
+      </div>
+    </header>
+
+    <main class="layout" id="view-compose">
+      <!-- ------------------------------------------------------- compose -->
+      <section class="col">
+        <article class="card">
+          <header class="card-head">
+            <h2><span class="step">1</span> Recipients</h2>
+            <span class="counter" id="recipient-counter">0 valid</span>
+          </header>
+          <p class="hint">
+            Paste any number of addresses — separated by commas, spaces or new lines. Rows copied
+            from a spreadsheet (<code>Name, email</code>) work too, and duplicates are removed
+            automatically.
+          </p>
+          <textarea
+            id="recipients"
+            rows="8"
+            spellcheck="false"
+            placeholder="priya@college.edu, rahul@college.edu&#10;Ananya Rao &lt;ananya@college.edu&gt;&#10;Vikram Singh, vikram@college.edu"
+          ></textarea>
+          <div class="row">
+            <label class="file-btn">
+              <input type="file" id="recipient-file" accept=".csv,.txt,.tsv" hidden />
+              Import CSV / TXT
+            </label>
+            <button class="ghost" id="btn-clear-recipients" type="button">Clear</button>
+          </div>
+          <div class="warn" id="recipient-warnings" hidden></div>
+        </article>
+
+        <article class="card">
+          <header class="card-head">
+            <h2><span class="step">2</span> The message</h2>
+          </header>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Domain / Role <em>— what this batch is for</em></span>
+              <input
+                type="text"
+                id="role"
+                list="role-suggestions"
+                placeholder="Flutter Developer"
+                autocomplete="off"
+              />
+              <datalist id="role-suggestions"></datalist>
+            </label>
+
+            <label class="field">
+              <span>Deadline</span>
+              <input
+                type="text"
+                id="deadline"
+                placeholder="Friday, 22 August 2026, 11:59 PM"
+                autocomplete="off"
+              />
+            </label>
+          </div>
+
+          <div class="ai-box" id="ai-box">
+            <div class="ai-head">
+              <strong>✨ Draft it with AI</strong>
+              <span class="muted" id="ai-state"></span>
+            </div>
+            <textarea
+              id="ai-instructions"
+              rows="3"
+              placeholder="Assignment 3 on data structures. Read the attached PDF, implement both problems, submit a single ZIP on the portal. Late submissions lose 10% per day."
+            ></textarea>
+            <div class="row">
+              <select id="ai-tone">
+                <option value="formal and professional">Formal</option>
+                <option value="friendly but clear" selected>Friendly</option>
+                <option value="short and direct">Short &amp; direct</option>
+                <option value="warm and encouraging">Encouraging</option>
+              </select>
+              <button class="primary small" id="btn-ai" type="button">Generate</button>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Subject</span>
+            <input
+              type="text"
+              id="subject"
+              placeholder="Assignment 3 — due {{deadline}}"
+              autocomplete="off"
+            />
+          </label>
+
+          <label class="field">
+            <span>Body</span>
+            <textarea
+              id="body"
+              rows="12"
+              placeholder="Hi {{name}},&#10;&#10;Please find Assignment 3 attached…"
+            ></textarea>
+          </label>
+
+          <p class="hint">
+            Placeholders get replaced for each person:
+            <code>{{name}}</code> <code>{{firstname}}</code> <code>{{email}}</code>
+            <code>{{deadline}}</code> <code>{{role}}</code>
+          </p>
+        </article>
+
+        <article class="card">
+          <header class="card-head">
+            <h2><span class="step">3</span> Attachments</h2>
+            <span class="counter" id="file-counter">none</span>
+          </header>
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="attachments" multiple hidden />
+            <span class="dz-icon">📎</span>
+            <span>Drop your PDF here, or click to choose</span>
+            <small>Up to 5 files, 25 MB each</small>
+          </label>
+          <ul class="filelist" id="filelist"></ul>
+        </article>
+      </section>
+
+      <!-- -------------------------------------------------------- review -->
+      <section class="col">
+        <article class="card sticky">
+          <header class="card-head">
+            <h2><span class="step">4</span> Preview &amp; send</h2>
+          </header>
+
+          <div class="preview" id="preview">
+            <p class="muted">Add recipients and a message to see the preview.</p>
+          </div>
+
+          <div class="send-block">
+            <div class="row">
+              <input
+                type="email"
+                id="test-address"
+                placeholder="Send one test to…"
+                autocomplete="off"
+              />
+              <button class="ghost" id="btn-test-send" type="button">Test</button>
+            </div>
+            <button class="primary big" id="btn-send" type="button" disabled>
+              Send to <strong id="send-count">0</strong> recipients
+            </button>
+            <p class="hint center">
+              Each person gets their own email — nobody can see the other addresses.
+            </p>
+          </div>
+        </article>
+
+        <article class="card" id="progress-card" hidden>
+          <header class="card-head">
+            <h2>Sending</h2>
+            <div class="row tight">
+              <button class="ghost small" id="btn-cancel" type="button">Stop</button>
+              <a class="ghost small" id="btn-csv" href="#" download>Download CSV</a>
+            </div>
+          </header>
+
+          <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
+          <div class="stats">
+            <div><span id="stat-sent">0</span><small>sent</small></div>
+            <div class="bad"><span id="stat-failed">0</span><small>failed</small></div>
+            <div><span id="stat-total">0</span><small>total</small></div>
+          </div>
+
+          <ul class="log" id="log"></ul>
+        </article>
+      </section>
+    </main>
+
+    <!-- ------------------------------------------------------------ history -->
+    <section class="history" id="view-history" hidden>
+      <article class="card">
+        <header class="card-head">
+          <h2>Everything you have sent</h2>
+          <a class="ghost small" id="history-export" href="#" download>Export CSV</a>
+        </header>
+
+        <div class="search-row">
+          <input
+            type="search"
+            id="history-q"
+            class="search"
+            placeholder="Search an email address, name or subject…"
+            autocomplete="off"
+          />
+          <select id="history-status">
+            <option value="all">All results</option>
+            <option value="sent">Delivered only</option>
+            <option value="failed">Failed only</option>
+          </select>
+          <select id="history-role">
+            <option value="">All domains / roles</option>
+          </select>
+          <select id="history-domain">
+            <option value="">All email providers</option>
+          </select>
+          <select id="history-source">
+            <option value="all">All sends</option>
+            <option value="campaign">Campaigns</option>
+            <option value="test">Tests</option>
+          </select>
+        </div>
+        <div class="search-row">
+          <label class="date-field">From <input type="date" id="history-from" /></label>
+          <label class="date-field">To <input type="date" id="history-to" /></label>
+          <button class="ghost small" id="history-reset" type="button">Reset filters</button>
+        </div>
+
+        <div class="stats stats-4" id="history-stats">
+          <div><span>0</span><small>delivered</small></div>
+          <div class="bad"><span>0</span><small>failed</small></div>
+          <div><span>0</span><small>people</small></div>
+          <div><span>0</span><small>domains / roles</small></div>
+        </div>
+      </article>
+
+      <div class="history-grid">
+        <div class="side-stack">
+          <article class="card">
+            <header class="card-head">
+              <h2>By domain / role</h2>
+              <span class="counter">click to filter</span>
+            </header>
+            <div class="table-wrap">
+              <table class="table" id="role-table">
+                <thead>
+                  <tr><th>Domain</th><th class="num">People</th><th class="num">Sent</th><th class="num">Failed</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <header class="card-head">
+              <h2>By email provider</h2>
+              <span class="counter">deliverability</span>
+            </header>
+            <div class="table-wrap">
+              <table class="table" id="domain-table">
+                <thead>
+                  <tr><th>Provider</th><th class="num">People</th><th class="num">Sent</th><th class="num">Failed</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <article class="card">
+          <header class="card-head">
+            <h2>Recipients</h2>
+            <span class="counter" id="history-count">0 results</span>
+          </header>
+          <div class="table-wrap">
+            <table class="table" id="history-table">
+              <thead>
+                <tr><th>When</th><th>Domain</th><th>Email</th><th>Subject</th><th>Status</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="pager" id="history-pager" hidden>
+            <button class="ghost small" id="page-prev" type="button">← Newer</button>
+            <span id="page-label">Page 1 of 1</span>
+            <button class="ghost small" id="page-next" type="button">Older →</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="toast-wrap" id="toasts"></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
