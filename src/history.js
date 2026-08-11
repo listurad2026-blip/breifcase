@@ -13,7 +13,11 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-const DATA_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data');
+// Defaults to ./data locally. On a host with a mounted disk, point DATA_DIR at
+// the mount (e.g. /var/data) so history survives redeploys and restarts.
+const DATA_DIR =
+  process.env.DATA_DIR?.trim() ||
+  path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data');
 const FILE = path.join(DATA_DIR, 'history.jsonl');
 
 export const NO_ROLE = '(none)';

@@ -1,0 +1,53 @@
+# Render blueprint. You can either use this file (New → Blueprint) or create the
+# Web Service by hand with the same settings — both give the same result.
+#
+# Secrets are marked `sync: false`, which means Render prompts you for them in
+# the dashboard instead of reading them from this file. Never put real keys here:
+# this file is committed to the repository.
+
+services:
+  - type: web
+    name: briefcase
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/config
+
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+
+      # Where send history is stored. With the disk below this survives
+      # redeploys; on the free plan (no disk) history resets on each deploy.
+      - key: DATA_DIR
+        value: /var/data
+
+      # --- set these in the Render dashboard, not here ---------------------
+      - key: DASHBOARD_PASSWORD   # REQUIRED once the app is on a public URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM_NAME
+        sync: false
+      - key: MAIL_FROM_EMAIL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        sync: false
+
+    # A disk keeps history across deploys, but needs a paid instance type.
+    # On the Starter plan or above, uncomment this and set plan: starter.
+    # disk:
+    #   name: briefcase-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
